@@ -1,0 +1,7 @@
+# Runs automatically before every commit once you run: pre-commit install
+# Setup: brew install pre-commit gitleaks && pre-commit install
+repos:
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.18.4
+    hooks:
+      - id: gitleaks

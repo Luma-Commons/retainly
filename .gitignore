@@ -1,0 +1,74 @@
+# ---------------------------------------------------------------
+# Secrets and environment files: NEVER commit these.
+# This repository is public, and git history is permanent.
+# ---------------------------------------------------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.p12
+*.key
+*.mobileprovision
+secrets/
+service-account*.json
+
+# Local data: no real contracts, statements or personal documents here
+/data/
+real-contracts/
+statements/
+*.local.*
+
+# macOS and editors
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Python (backend)
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+.coverage
+htmlcov/
+
+# Docker (local overrides only)
+docker-compose.override.yml
+
+# Swift and Xcode (ios)
+DerivedData/
+xcuserdata/
+*.xcuserstate
+.swiftpm/
+.build/
+*.ipa
+*.xcarchive
+*.dSYM.zip
+
+# Kotlin and Gradle (shared core, later android)
+.gradle/
+.kotlin/
+build/
+local.properties
+*.hprof
+captures/
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/
+fastlane/test_output/
+
+# Terraform: state and real variable files can contain secrets
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+
+# Build output
+dist/

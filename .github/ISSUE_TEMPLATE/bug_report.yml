@@ -1,0 +1,57 @@
+name: Bug report
+description: Something does not work the way it should
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting this. This repository is **public**, so everything you write here can be seen by anyone.
+        **Never paste real contracts, bank details, personal data, passwords or API keys**, including in screenshots. Use made-up data only.
+  - type: textarea
+    id: summary
+    attributes:
+      label: What went wrong?
+      description: One or two plain sentences.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: What you did, one step per line, so someone else can repeat it.
+      placeholder: |
+        1. Open ...
+        2. Call ...
+        3. See ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happened instead?
+    validations:
+      required: true
+  - type: input
+    id: request_id
+    attributes:
+      label: Request ID (if the problem came from the API)
+      description: The `X-Request-ID` value from the response headers. It lets a developer find every log line from that request.
+      placeholder: 3f9c1a7e8b2d4c61a0b5e4d7c2f10a98
+  - type: input
+    id: build
+    attributes:
+      label: Version or commit tested
+      placeholder: main at 1a2b3c4
+  - type: checkboxes
+    id: safe
+    attributes:
+      label: Before you submit
+      options:
+        - label: I have not included real data, secrets or personal details.
+          required: true
