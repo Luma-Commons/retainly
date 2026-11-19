@@ -1,0 +1,24 @@
+name: PR title
+
+# Checks that the pull request title follows Conventional Commits
+# (docs/adr/0014-conventional-commits.md). With squash merging, the title becomes
+# the commit message on main, so the title is the one thing to check.
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  pr-title:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check the title
+        env:
+          # The title is untrusted input. It goes in through an environment
+          # variable and is never written into the shell command itself.
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: bash .github/scripts/check-pr-title.sh
