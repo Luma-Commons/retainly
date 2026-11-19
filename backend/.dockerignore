@@ -1,0 +1,30 @@
+# Everything listed here is kept OUT of the Docker build.
+# See docs/adr/0013-api-container-image.md.
+#
+# The most important rule: secrets must never get into an image layer.
+# A secret baked into an image stays there even if a later step deletes it.
+
+# NOTE: unlike .gitignore, a pattern here matches only at the TOP of the build
+# folder unless it starts with **/ (which means "at any depth").
+
+# Secrets and local settings (at any depth)
+**/.env
+**/.env.*
+**/*.pem
+**/*.key
+
+# Local environments and caches (rebuilt inside the image)
+.venv
+**/__pycache__
+**/*.pyc
+**/.pytest_cache
+**/.ruff_cache
+**/.pyright
+**/.mypy_cache
+
+# Not needed at run time
+tests
+.git
+.gitignore
+**/.DS_Store
+**/*.md
