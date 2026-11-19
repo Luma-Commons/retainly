@@ -1,0 +1,52 @@
+# Local development stack for Retainly. See docs/adr/0012-docker-compose-postgres-18.md.
+#
+# Start:  docker compose -f infra/compose.yaml up -d
+# Stop:   docker compose -f infra/compose.yaml down        (keeps the data)
+# Reset:  docker compose -f infra/compose.yaml down -v     (DELETES the data)
+#
+# The credentials below are throwaway values for local development only.
+# Never reuse them anywhere real, and never put real secrets in this file.
+
+name: retainly
+
+services:
+  db:
+    image: postgres:18 # pinned to the major version, see ADR 0012
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-retainly}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-retainly}
+      POSTGRES_DB: ${POSTGRES_DB:-retainly}
+    ports:
+      # 127.0.0.1 means only this Mac can connect, not other machines.
+      - "127.0.0.1:5432:5432"
+    volumes:
+      # Postgres 18 stores its data under /var/lib/postgresql.
+      # Older versions used /var/lib/postgresql/data. Do not change this path.
+      - db-data:/var/lib/postgresql
+    shm_size: 128mb
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  api:
+    build:
+      context: ../backend # relative to this file; uses backend/Dockerfile
+    image: retainly-api:dev
+    depends_on:
+      db:
+        # Start only once the database's health check says it is ready.
+        condition: service_healthy
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT:-local}
+      # Inside the compose network the database is reached by its service name,
+      # "db". "localhost" here would mean the api container itself.
+      DATABASE_URL: postgresql://${POSTGRES_USER:-retainly}:${POSTGRES_PASSWORD:-retainly}@db:5432/${POSTGRES_DB:-retainly}
+    ports:
+      - "127.0.0.1:8000:8000"
+    # The health check comes from the Dockerfile (it calls GET /health).
+
+volumes:
+  db-data:

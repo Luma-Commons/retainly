@@ -1,9 +1,10 @@
 import logging
 import sys
-from typing import Literal
 
 import structlog
 from structlog.typing import EventDict, Processor, WrappedLogger
+
+from app.settings import Environment, EnvironmentSettings
 
 # Keys whose values must never reach the logs. A safety net: the real rule is
 # not to log secrets in the first place.
@@ -30,16 +31,18 @@ def redact_sensitive(
     return event_dict
 
 
-def configure_logging(environment: Literal["local", "test", "production"]) -> None:
-    """Set up structlog and route standard logging (Uvicorn) through it."""
-    # Steps every log line goes through, whoever wrote it.
-    shared: list[Processor] = [
+def _shared_processors() -> list[Processor]:
+    """Steps every log line goes through, whoever wrote it."""
+    return [
         structlog.contextvars.merge_contextvars,  # adds request_id etc.
         structlog.stdlib.add_log_level,
         structlog.processors.TimeStamper(fmt="iso", utc=True),
         redact_sensitive,
     ]
 
+
+def build_formatter(environment: Environment) -> structlog.stdlib.ProcessorFormatter:
+    """The formatter that turns any standard log record into our format."""
     # The last step decides the format.
     final: list[Processor] = [
         structlog.stdlib.ProcessorFormatter.remove_processors_meta
@@ -50,19 +53,35 @@ def configure_logging(environment: Literal["local", "test", "production"]) -> No
         final.append(structlog.processors.format_exc_info)
         final.append(structlog.processors.JSONRenderer())
 
+    return structlog.stdlib.ProcessorFormatter(
+        foreign_pre_chain=_shared_processors(),  # for lines from other libraries
+        processors=final,
+    )
+
+
+def uvicorn_formatter() -> structlog.stdlib.ProcessorFormatter:
+    """Factory used by Uvicorn's log config file (app/uvicorn_logging.json).
+
+    Uvicorn sets up its logging before our app starts, so this reads only the
+    environment name and does not need the other settings.
+    """
+    return build_formatter(EnvironmentSettings().environment)
+
+
+def configure_logging(environment: Environment) -> None:
+    """Set up structlog and route standard logging (Uvicorn) through it."""
     structlog.configure(
-        processors=[*shared, structlog.stdlib.ProcessorFormatter.wrap_for_formatter],
+        processors=[
+            *_shared_processors(),
+            structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
+        ],
         logger_factory=structlog.stdlib.LoggerFactory(),
         wrapper_class=structlog.stdlib.BoundLogger,
         cache_logger_on_first_use=False,
     )
 
-    formatter = structlog.stdlib.ProcessorFormatter(
-        foreign_pre_chain=shared,  # same steps for lines from other libraries
-        processors=final,
-    )
     handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(formatter)
+    handler.setFormatter(build_formatter(environment))
 
     root = logging.getLogger()
     root.handlers = [handler]
