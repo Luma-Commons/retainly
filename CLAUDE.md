@@ -27,7 +27,8 @@ Never adopt a library, pattern or service silently.
 
 - Plain, simple language in docs and comments. Short sentences.
 - Decisions live in `docs/adr/`. The roadmap lives in `docs/ROADMAP.md`.
-- Commit only when asked. Do not push.
+- Commit only when asked. Push only when asked, and only branches: `main` is protected, so every change goes through a pull request.
+- **Conventional Commits** ([`docs/adr/0014`](docs/adr/0014-conventional-commits.md)): commit messages and pull request titles look like `type(scope): description`, for example `feat(backend): add request-ID logging`. Lowercase after the colon, no full stop, at most 72 characters. Pull requests are squash-merged, so the title is what counts.
 
 ## Stack (decided)
 

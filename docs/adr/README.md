@@ -17,5 +17,6 @@ Format: see [`0000-template.md`](0000-template.md). A decision is never deleted.
 | [0009](0009-pydantic-settings-configuration.md) | Pydantic-settings for configuration | Accepted |
 | [0010](0010-structlog-request-ids.md) | Structlog and request IDs for logging | Accepted |
 | [0011](0011-qa-folder-and-collaboration.md) | QA folder and collaboration rules | Accepted |
+| [0014](0014-conventional-commits.md) | Conventional Commits and squash merging | Accepted |
 
 More are added as each topic is learned and decided: backend stack (M0), Kotlin Multiplatform scope (M2), money representation (M1), and so on.
